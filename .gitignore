@@ -1,0 +1,31 @@
+# 💻 Virtual environments
+venv/
+.env
+.env.*
+
+# 📦 Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 🚫 Backup files
+*.swp
+*.bak
+*~
+
+# 🧪 Test outputs or logs
+*.log
+*.tmp
+
+# 💾 IDE / editor files
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace
+
+# 👤 Local user data (FiNo)
+.fino/
