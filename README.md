@@ -16,7 +16,7 @@ It uses:
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/yourname/fino.git
+git clone https://github.com/arnispen/fino.git
 cd fino
 pip install .
 ```
@@ -87,6 +87,8 @@ Receiver (Bob)
     |-- Downloads file from IPFS
     |-- Decrypts with AES key and nonce
 ```
+
+> NOTE: Just in case it wasn't obvious, the sender and the receiver don't necessarily have to be the same machine.
 
 ---
 
