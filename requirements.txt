@@ -1,7 +1,0 @@
-cryptography
-requests
-websocket-client
-pynostr
-python-dotenv
-ecdsa
-bech32
