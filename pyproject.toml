@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fino"
+version = "0.1.0"
+description = "Proof-of-Concept: Secure File Sharing via IPFS + Nostr DMs"
+authors = [{ name = "arnispen" }]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.8"
+readme = "README.md"
+keywords = ["nostr", "ipfs", "encryption", "file-sharing", "proof-of-concept", "innovation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Communications :: File Sharing",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "cryptography>=41.0.0",
+    "requests>=2.28.0",
+    "pynostr[websocket-client]>=0.0.20",
+    "typer>=0.9.0",
+    "python-dotenv>=1.0.0",
+    "websockets>=11.0.0",
+]
+
+[project.scripts]
+fino = "fino.main:app"
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/arnispen/fino"
+Repository = "https://github.com/arnispen/fino"
+Issues = "https://github.com/arnispen/fino/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
