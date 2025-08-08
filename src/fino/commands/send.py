@@ -12,7 +12,6 @@ def send(
     file: Path = typer.Argument(..., exists=True, help="File to send"),
     to: str = typer.Option(..., "--to", help="Recipient's npub (public key)"),
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
-    pinata_jwt: str = typer.Option("default", "--pinata-jwt", help="Pinata JWT token for IPFS storage"),
 ):
     """
     Send an encrypted file via Nostr DMs and IPFS storage.
@@ -42,7 +41,7 @@ def send(
     
     # Step 2: IPFS upload
     typer.secho("🌐 [bold]Step 2:[/bold] Uploading to IPFS...", fg=typer.colors.CYAN)
-    cid = upload_to_pinata(ciphertext, file.name, pinata_jwt)
+    cid = upload_to_pinata(ciphertext, file.name)
     typer.secho(f"   ✅ Uploaded to IPFS: {cid}", fg=typer.colors.GREEN)
     
     # Step 3: Metadata encryption and sending

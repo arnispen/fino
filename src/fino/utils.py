@@ -9,12 +9,12 @@ def configure_logging(verbose: bool, quiet: bool, no_color: bool, json_out: bool
         level = logging.ERROR
     logging.basicConfig(level=level, format="%(message)s")
 
-def resolve_jwt(alias: str) -> str:
-    token = os.getenv(f"PINATA_JWT_{alias}")
+def resolve_jwt() -> str:
+    """Get Pinata JWT from environment variable"""
+    token = os.getenv("PINATA_JWT_DEFAULT")
     if not token:
-        token = alias
-    if not token:
-        typer.secho("Error: missing Pinata JWT (alias or raw token)", fg=typer.colors.RED)
+        typer.secho("Error: missing PINATA_JWT_DEFAULT environment variable", fg=typer.colors.RED)
+        typer.secho("Please set PINATA_JWT_DEFAULT in your .env file", fg=typer.colors.RED)
         raise typer.Exit(1)
     return token
 

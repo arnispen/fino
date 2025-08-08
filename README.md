@@ -81,10 +81,8 @@ fino gen-key
 Create a `.env` file in the project root:
 
 ```env
-PINATA_JWT=your_pinata_jwt_token_here
+PINATA_JWT_DEFAULT=your_pinata_jwt_token_here
 ```
-
-Or use the `--pinata-jwt` flag with the send command.
 
 > **Note**: Pinata JWT is only required for sending files (uploading to IPFS). Receiving files doesn't require any API keys.
 
@@ -98,13 +96,6 @@ fino send \
   --file ./secret_document.pdf \
   --to npub1recipient_public_key_here \
   --from nsec1your_private_key_here
-
-# With custom Pinata JWT
-fino send \
-  --file ./secret_document.pdf \
-  --to npub1recipient_public_key_here \
-  --from nsec1your_private_key_here \
-  --pinata-jwt your_jwt_token_here
 ```
 
 ### Receiving Files
