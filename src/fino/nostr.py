@@ -9,6 +9,8 @@ from pynostr.relay_manager import RelayManager
 from pynostr.filters import Filters, FiltersList
 from pynostr.event import EventKind, Event
 
+DEFAULT_RELAYS = ["wss://nos.lol"]
+
 def encrypt_payload(payload: dict, recipient_npub: str, sender_nsec: str) -> str:
     """Encrypt payload using ECDH shared secret for cross-key communication"""
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -143,7 +145,8 @@ async def send_dm_async(from_nsec: str, to_npub: str, encrypted_content: str, re
     typer.secho(f"📝 Event tags: {ev.tags}", fg=typer.colors.CYAN)
     
     # Send to each relay directly
-    for relay_url in relays:
+    chosen_relays = relays if relays else DEFAULT_RELAYS
+    for relay_url in chosen_relays:
         typer.secho(f"🔌 Connecting to {relay_url}...", fg=typer.colors.CYAN)
         try:
             async with websockets.connect(relay_url) as websocket:
@@ -183,7 +186,7 @@ async def receive_loop_async(your_nsec: str, relays: List[str], callback: Callab
         pub_hex = priv.public_key.hex()
         typer.secho(f"🔑 Receiver private key: {pub_hex[:8]}...", fg=typer.colors.CYAN)
         
-        default = ["wss://nos.lol"]
+        default = DEFAULT_RELAYS
         chosen = relays if relays else default
         typer.secho(f"🌐 Using relays: {chosen}", fg=typer.colors.CYAN)
 

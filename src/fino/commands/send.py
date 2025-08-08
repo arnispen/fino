@@ -2,7 +2,7 @@ import typer
 from pathlib import Path
 from ..encryption import encrypt_file
 from ..ipfs import upload_to_pinata
-from ..nostr import encrypt_payload, send_dm
+from ..nostr import encrypt_payload, send_dm, DEFAULT_RELAYS
 from ..utils import build_payload
 
 app = typer.Typer(help="Send encrypted files via Nostr DMs and IPFS storage")
@@ -13,7 +13,6 @@ def send(
     to: str = typer.Option(..., "--to", help="Recipient's npub (public key)"),
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
     pinata_jwt: str = typer.Option("default", "--pinata-jwt", help="Pinata JWT token for IPFS storage"),
-    relay: str = typer.Option("wss://nos.lol", "--relay", help="Nostr relay URL"),
 ):
     """
     Send an encrypted file via Nostr DMs and IPFS storage.
@@ -33,7 +32,7 @@ def send(
     file_size = file.stat().st_size
     typer.secho(f"📁 File: {file.name} ({file_size:,} bytes)", fg=typer.colors.CYAN)
     typer.secho(f"👤 Recipient: {to[:8]}...", fg=typer.colors.CYAN)
-    typer.secho(f"📡 Relay: {relay}", fg=typer.colors.CYAN)
+    typer.secho(f"📡 Relay(s): {DEFAULT_RELAYS}", fg=typer.colors.CYAN)
     typer.secho("=" * 50, fg=typer.colors.CYAN)
     
     # Step 1: File encryption
@@ -50,7 +49,7 @@ def send(
     typer.secho("📡 [bold]Step 3:[/bold] Sending via Nostr DM...", fg=typer.colors.CYAN)
     payload = build_payload(cid, key, nonce, file.name)
     enc = encrypt_payload(payload, to, from_nsec)
-    send_dm(from_nsec, to, enc, [relay])
+    send_dm(from_nsec, to, enc, DEFAULT_RELAYS)
     
     typer.secho("=" * 50, fg=typer.colors.CYAN)
     typer.secho("🎉 [bold]File sent successfully![/bold]", fg=typer.colors.BRIGHT_GREEN)

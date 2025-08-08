@@ -1,5 +1,5 @@
 import typer
-from ..nostr import receive_loop, decrypt_payload
+from ..nostr import receive_loop, decrypt_payload, DEFAULT_RELAYS
 from ..ipfs import download
 from ..encryption import decrypt_file
 from ..utils import build_filename_from_payload
@@ -10,7 +10,6 @@ app = typer.Typer(help="Receive and decrypt files via Nostr DMs and IPFS")
 def receive(
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
     pinata_jwt: str = typer.Option("default", "--pinata-jwt", help="Pinata JWT token for IPFS storage"),
-    relay: str = typer.Option("wss://nos.lol", "--relay", help="Nostr relay URL"),
     output_dir: str = typer.Option(None, "--output-dir", "-o", help="Directory to save received files (default: current directory)"),
 ):
     """
@@ -27,7 +26,7 @@ def receive(
     typer.secho("🔐📁 [bold]FiNo File Receiving Process[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
     typer.secho("=" * 50, fg=typer.colors.CYAN)
     typer.secho("🎧 [bold]Starting receiver...[/bold]", fg=typer.colors.CYAN)
-    typer.secho("   📡 Relay: " + relay, fg=typer.colors.CYAN)
+    typer.secho("   📡 Relays: " + ", ".join(DEFAULT_RELAYS), fg=typer.colors.CYAN)
     typer.secho("   💾 Output: " + (output_dir or "current directory"), fg=typer.colors.CYAN)
     typer.secho("   🔍 Only showing NEW files sent to you", fg=typer.colors.CYAN)
     typer.secho("   ⏹️  Press Ctrl+C to stop", fg=typer.colors.CYAN)
@@ -86,4 +85,4 @@ def receive(
         typer.secho("⚠️  [italic]This is experimental software for innovation research only.[/italic]", fg=typer.colors.YELLOW)
         typer.secho("=" * 50, fg=typer.colors.CYAN)
     
-    receive_loop(from_nsec, [relay], callback)
+    receive_loop(from_nsec, DEFAULT_RELAYS, callback)

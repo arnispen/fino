@@ -112,6 +112,8 @@ fino receive \
   --output-dir ./downloads
 ```
 
+> Note: FiNo uses a built-in default relay configuration for simplicity and reliability.
+
 ### Key Management
 
 ```bash
