@@ -26,12 +26,13 @@ def receive(
     """
     typer.secho("🔐📁 [bold]FiNo File Receiving Process[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
     typer.secho("=" * 50, fg=typer.colors.CYAN)
-    typer.secho("🎧 [bold]Listening for incoming files...[/bold]", fg=typer.colors.CYAN)
+    typer.secho("🎧 [bold]Starting receiver...[/bold]", fg=typer.colors.CYAN)
     typer.secho("   📡 Relay: " + relay, fg=typer.colors.CYAN)
     typer.secho("   💾 Output: " + (output_dir or "current directory"), fg=typer.colors.CYAN)
     typer.secho("   🔍 Only showing NEW files sent to you", fg=typer.colors.CYAN)
     typer.secho("   ⏹️  Press Ctrl+C to stop", fg=typer.colors.CYAN)
     typer.secho("=" * 50, fg=typer.colors.CYAN)
+    typer.secho("🔄 Connecting to relay...", fg=typer.colors.YELLOW)
     
     def callback(event):
         typer.secho("🔄 [bold]PROCESSING RECEIVED FILE[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
@@ -51,12 +52,12 @@ def receive(
         # Step 2: Download from IPFS
         typer.secho("📥 [bold]Step 2:[/bold] Downloading from IPFS...", fg=typer.colors.CYAN)
         data = download(p["cid"])
-        typer.secho(f"   ✅ Downloaded: {len(data)} bytes", fg=typer.colors.GREEN)
+        typer.secho(f"   ✅ Downloaded: {len(data):,} bytes", fg=typer.colors.GREEN)
         
         # Step 3: Decrypt file
         typer.secho("🔓 [bold]Step 3:[/bold] Decrypting file...", fg=typer.colors.CYAN)
         plaintext = decrypt_file(data, bytes.fromhex(p["key"]), bytes.fromhex(p["nonce"]))
-        typer.secho(f"   ✅ File decrypted: {len(plaintext)} bytes", fg=typer.colors.GREEN)
+        typer.secho(f"   ✅ File decrypted: {len(plaintext):,} bytes", fg=typer.colors.GREEN)
         
         # Step 4: Save file
         import os
@@ -81,7 +82,7 @@ def receive(
         typer.secho("-" * 40, fg=typer.colors.CYAN)
         typer.secho("🎉 [bold]File received successfully![/bold]", fg=typer.colors.BRIGHT_GREEN)
         typer.secho(f"📁 Saved: {filepath}", fg=typer.colors.GREEN)
-        typer.secho(f"📊 Size: {len(plaintext)} bytes", fg=typer.colors.GREEN)
+        typer.secho(f"📊 Size: {len(plaintext):,} bytes", fg=typer.colors.GREEN)
         typer.secho("⚠️  [italic]This is experimental software for innovation research only.[/italic]", fg=typer.colors.YELLOW)
         typer.secho("=" * 50, fg=typer.colors.CYAN)
     

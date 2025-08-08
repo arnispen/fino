@@ -29,10 +29,17 @@ def send(
     typer.secho("🔐📁 [bold]FiNo File Sending Process[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
     typer.secho("=" * 50, fg=typer.colors.CYAN)
     
+    # Show file info
+    file_size = file.stat().st_size
+    typer.secho(f"📁 File: {file.name} ({file_size:,} bytes)", fg=typer.colors.CYAN)
+    typer.secho(f"👤 Recipient: {to[:8]}...", fg=typer.colors.CYAN)
+    typer.secho(f"📡 Relay: {relay}", fg=typer.colors.CYAN)
+    typer.secho("=" * 50, fg=typer.colors.CYAN)
+    
     # Step 1: File encryption
     typer.secho("🔒 [bold]Step 1:[/bold] Encrypting file...", fg=typer.colors.CYAN)
     ciphertext, key, nonce = encrypt_file(str(file))
-    typer.secho(f"   ✅ File encrypted: {len(ciphertext)} bytes", fg=typer.colors.GREEN)
+    typer.secho(f"   ✅ File encrypted: {len(ciphertext):,} bytes", fg=typer.colors.GREEN)
     
     # Step 2: IPFS upload
     typer.secho("🌐 [bold]Step 2:[/bold] Uploading to IPFS...", fg=typer.colors.CYAN)
@@ -48,6 +55,7 @@ def send(
     typer.secho("=" * 50, fg=typer.colors.CYAN)
     typer.secho("🎉 [bold]File sent successfully![/bold]", fg=typer.colors.BRIGHT_GREEN)
     typer.secho(f"📁 File: {file.name}", fg=typer.colors.GREEN)
+    typer.secho(f"📊 Size: {file_size:,} bytes", fg=typer.colors.GREEN)
     typer.secho(f"🔗 IPFS CID: {cid}", fg=typer.colors.GREEN)
     typer.secho(f"👤 Recipient: {to[:8]}...", fg=typer.colors.GREEN)
     typer.secho("⚠️  [italic]This is experimental software for innovation research only.[/italic]", fg=typer.colors.YELLOW)
