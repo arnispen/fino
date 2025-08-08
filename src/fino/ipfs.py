@@ -11,7 +11,7 @@ def upload_to_pinata(data: bytes, filename: str) -> str:
 
 def download(cid: str) -> bytes:
     # Use public IPFS gateway
-    url = f"https://gateway.pinata.cloud/ipfs/{cid}"
+    url = f"https://ipfs.io/ipfs/{cid}"
     resp = requests.get(url)
     resp.raise_for_status()
     return resp.content

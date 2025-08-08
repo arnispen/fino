@@ -55,6 +55,8 @@
 # Install the package (includes all dependencies)
 pip install ffs
 
+> **ffs = fino-file-sharing (system)**
+
 # Generate keys
 fino gen-key
 
