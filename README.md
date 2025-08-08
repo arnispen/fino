@@ -55,8 +55,6 @@
 # Install the package (includes all dependencies)
 pip install ffs
 
-> **ffs = fino-file-sharing (system)**
-
 # Generate keys
 fino gen-key
 
@@ -66,6 +64,8 @@ ffs send --file document.pdf --to npub1... --from nsec1...
 # Receive files
 ffs receive --from nsec1...
 ```
+
+> **ffs = fino-file-sharing (system)**
 
 #### Option 2: Install from Source
 
