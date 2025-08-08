@@ -53,19 +53,17 @@
 
 ```bash
 # Install the package (includes all dependencies)
-pip install ffs
+pip install pyfino
 
 # Generate keys
 fino gen-key
 
 # Send a file
-ffs send --file document.pdf --to npub1... --from nsec1...
+fino send --file document.pdf --to npub1... --from nsec1...
 
 # Receive files
-ffs receive --from nsec1...
+fino receive --from nsec1...
 ```
-
-> **ffs = fino-file-sharing (system)**
 
 #### Option 2: Install from Source
 
@@ -78,7 +76,7 @@ cd fino
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies and CLI tool
+# Install dependencies and CLI tool (installing requirements.txt might not be absolutely necessary, but it's good to do just in case)
 pip install -r requirements.txt
 pip install -e .
 ```
