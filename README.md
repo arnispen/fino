@@ -87,7 +87,7 @@ pip install -e .
 
 ```bash
 # Generate a new key pair
-ffs gen-key
+fino gen-key
 
 # This will output:
 # nsec: nsec1...
@@ -100,10 +100,10 @@ Configure your Pinata JWT token globally:
 
 ```bash
 # Interactive setup (recommended)
-ffs config set pinata-jwt
+fino config set pinata-jwt
 
 # Or set directly
-ffs config set pinata-jwt --value your_jwt_token_here
+fino config set pinata-jwt --value your_jwt_token_here
 ```
 
 This will guide you through getting your JWT token from Pinata and store it securely in `~/.fino/config.json`.
@@ -116,7 +116,7 @@ This will guide you through getting your JWT token from Pinata and store it secu
 
 ```bash
 # Send a file to a recipient
-ffs send \
+fino send \
   --file ./secret_document.pdf \
   --to npub1recipient_public_key_here \
   --from nsec1your_private_key_here
@@ -127,11 +127,11 @@ ffs send \
 ```bash
 # Listen for incoming files (saves to current directory by default)
 # Only shows NEW files sent to you after starting the command
-ffs receive \
+fino receive \
   --from nsec1your_private_key_here
 
 # Save to specific directory
-ffs receive \
+fino receive \
   --from nsec1your_private_key_here \
   --output-dir ./downloads
 ```
@@ -142,7 +142,7 @@ ffs receive \
 
 ```bash
 # Generate new key pair
-ffs gen-key
+fino gen-key
 ```
 
 ## 🔐 **Security Features**
