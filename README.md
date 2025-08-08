@@ -53,16 +53,16 @@
 
 ```bash
 # Install the package (includes all dependencies)
-pip install fino-file-sharing
+pip install ffs
 
 # Generate keys
 fino gen-key
 
 # Send a file
-fino send --file document.pdf --to npub1... --from nsec1...
+ffs send --file document.pdf --to npub1... --from nsec1...
 
 # Receive files
-fino receive --from nsec1...
+ffs receive --from nsec1...
 ```
 
 #### Option 2: Install from Source
@@ -87,7 +87,7 @@ pip install -e .
 
 ```bash
 # Generate a new key pair
-fino gen-key
+ffs gen-key
 
 # This will output:
 # nsec: nsec1...
@@ -96,11 +96,17 @@ fino gen-key
 
 ### 2. Configure Pinata (IPFS Storage) - **Only for Sending**
 
-Create a `.env` file in the project root:
+Configure your Pinata JWT token globally:
 
-```env
-PINATA_JWT_DEFAULT=your_pinata_jwt_token_here
+```bash
+# Interactive setup (recommended)
+ffs config set pinata-jwt
+
+# Or set directly
+ffs config set pinata-jwt --value your_jwt_token_here
 ```
+
+This will guide you through getting your JWT token from Pinata and store it securely in `~/.fino/config.json`.
 
 > **Note**: Pinata JWT is only required for sending files (uploading to IPFS). Receiving files doesn't require any API keys.
 
@@ -110,7 +116,7 @@ PINATA_JWT_DEFAULT=your_pinata_jwt_token_here
 
 ```bash
 # Send a file to a recipient
-fino send \
+ffs send \
   --file ./secret_document.pdf \
   --to npub1recipient_public_key_here \
   --from nsec1your_private_key_here
@@ -121,11 +127,11 @@ fino send \
 ```bash
 # Listen for incoming files (saves to current directory by default)
 # Only shows NEW files sent to you after starting the command
-fino receive \
+ffs receive \
   --from nsec1your_private_key_here
 
 # Save to specific directory
-fino receive \
+ffs receive \
   --from nsec1your_private_key_here \
   --output-dir ./downloads
 ```
@@ -136,7 +142,7 @@ fino receive \
 
 ```bash
 # Generate new key pair
-fino gen-key
+ffs gen-key
 ```
 
 ## 🔐 **Security Features**

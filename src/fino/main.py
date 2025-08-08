@@ -8,6 +8,7 @@ load_dotenv()
 from fino.commands.send import send as send_cmd
 from fino.commands.receive import receive as receive_cmd
 from fino.commands.gen_key import gen_key as gen_key_cmd
+from fino.commands.config import app as config_cmd
 
 app = typer.Typer(
     help="🔐📁 FiNo: Proof-of-Concept Secure File Sharing via IPFS + Nostr DMs",
@@ -41,6 +42,7 @@ def callback(
         typer.echo("  [green]fino send[/green]     - Send encrypted files via Nostr DMs")
         typer.echo("  [green]fino receive[/green]  - Receive and decrypt files")
         typer.echo("  [green]fino gen-key[/green]  - Generate new Nostr key pair")
+        typer.echo("  [green]fino config[/green]   - Manage global configuration")
         typer.echo("\n[bold cyan]💡 Pro Tips:[/bold cyan]")
         typer.echo("  • Use [yellow]--help[/yellow] with any command for detailed options")
         typer.echo("  • Files are saved to current directory by default")
@@ -53,6 +55,7 @@ def callback(
 app.command()(gen_key_cmd)
 app.command()(send_cmd)
 app.command()(receive_cmd)
+app.add_typer(config_cmd, name="config", help="Manage global configuration")
 
 def main():
     app()

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fino-file-sharing"
+name = "ffs"
 version = "0.1.0"
 description = "Proof-of-Concept: Secure File Sharing via IPFS + Nostr DMs"
 authors = [{ name = "arnispen", email = "arnispen@example.com" }]
