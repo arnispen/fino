@@ -9,7 +9,6 @@ app = typer.Typer(help="Receive and decrypt files via Nostr DMs and IPFS")
 @app.command()
 def receive(
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
-    pinata_jwt: str = typer.Option("default", "--pinata-jwt", help="Pinata JWT token for IPFS storage"),
     output_dir: str = typer.Option(None, "--output-dir", "-o", help="Directory to save received files (default: current directory)"),
 ):
     """

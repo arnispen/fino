@@ -45,7 +45,7 @@
 
 - Python 3.8 or higher
 - Nostr key pair (nsec/npub)
-- Pinata API key (for IPFS storage)
+- Pinata API key (for IPFS storage - **only needed for sending**)
 
 ### Quick Start
 
@@ -76,7 +76,7 @@ fino gen-key
 # npub: npub1...
 ```
 
-### 2. Configure Pinata (IPFS Storage)
+### 2. Configure Pinata (IPFS Storage) - **Only for Sending**
 
 Create a `.env` file in the project root:
 
@@ -84,7 +84,9 @@ Create a `.env` file in the project root:
 PINATA_JWT=your_pinata_jwt_token_here
 ```
 
-Or use the `--pinata-jwt` flag with commands.
+Or use the `--pinata-jwt` flag with the send command.
+
+> **Note**: Pinata JWT is only required for sending files (uploading to IPFS). Receiving files doesn't require any API keys.
 
 ## 📖 **Usage**
 
@@ -96,6 +98,13 @@ fino send \
   --file ./secret_document.pdf \
   --to npub1recipient_public_key_here \
   --from nsec1your_private_key_here
+
+# With custom Pinata JWT
+fino send \
+  --file ./secret_document.pdf \
+  --to npub1recipient_public_key_here \
+  --from nsec1your_private_key_here \
+  --pinata-jwt your_jwt_token_here
 ```
 
 ### Receiving Files
@@ -173,53 +182,41 @@ fino receive --from nsec1receiver_key
 fino send --file test.txt --to npub1receiver_key --from nsec1sender_key
 ```
 
-## 🤝 **Contributing**
-
-This is an experimental project. Contributions are welcome for:
-
-- **Security Improvements**: Cryptographic enhancements and audits
-- **Feature Extensions**: Additional Nostr relay support, alternative IPFS providers
-- **Documentation**: Better examples and use cases
-- **Testing**: More comprehensive test coverage
-
-### Development Setup
+## 📦 **Installation from PyPI**
 
 ```bash
-# Install development dependencies
-pip install -e ".[dev]"
+# Install the package
+pip install fino-file-sharing
 
-# Code formatting
-black src/ tests/
+# Generate keys
+fino gen-key
 
-# Linting
-flake8 src/ tests/
+# Send a file
+fino send --file document.pdf --to npub1... --from nsec1...
 
-# Type checking
-mypy src/
+# Receive files
+fino receive --from nsec1...
 ```
+
+## 🤝 **Contributing**
+
+This is a proof-of-concept project. Contributions are welcome for:
+
+- Bug fixes and improvements
+- Documentation enhancements
+- Security audits and recommendations
+- Feature suggestions
+
+Please read [DEVELOPMENT.md](DEVELOPMENT.md) for development setup and guidelines.
 
 ## 📄 **License**
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 **Acknowledgments**
+## ⚠️ **Disclaimer**
 
-- **Nostr Protocol**: For decentralized messaging infrastructure
-- **IPFS**: For distributed file storage
-- **Pinata**: For IPFS pinning services
-- **Cryptography Community**: For encryption standards and best practices
-
-## 🔮 **Future Directions**
-
-- **Multi-relay Support**: Automatic failover across multiple Nostr relays
-- **Alternative IPFS Providers**: Support for other IPFS pinning services
-- **Mobile Integration**: Native mobile apps for iOS/Android
-- **Web Interface**: Browser-based file sharing interface
-- **Group Sharing**: Multi-recipient file distribution
-- **Streaming Support**: Large file streaming and resumable transfers
+This software is provided as-is for educational and research purposes. The authors make no guarantees about security, reliability, or suitability for any purpose. Use at your own risk.
 
 ---
 
-**Built with ❤️ for the decentralized future**
-
-*This project demonstrates the potential of combining Nostr's real-time messaging with IPFS's distributed storage for secure, private file sharing without centralized infrastructure.*
+**FiNo** - Exploring the future of decentralized file sharing, one proof-of-concept at a time. 🔐📁
