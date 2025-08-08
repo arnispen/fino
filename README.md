@@ -49,6 +49,24 @@
 
 ### Quick Start
 
+#### Option 1: Install from PyPI (Recommended)
+
+```bash
+# Install the package (includes all dependencies)
+pip install fino-file-sharing
+
+# Generate keys
+fino gen-key
+
+# Send a file
+fino send --file document.pdf --to npub1... --from nsec1...
+
+# Receive files
+fino receive --from nsec1...
+```
+
+#### Option 2: Install from Source
+
 ```bash
 # Clone the repository
 git clone https://github.com/arnispen/fino.git
@@ -173,21 +191,7 @@ fino receive --from nsec1receiver_key
 fino send --file test.txt --to npub1receiver_key --from nsec1sender_key
 ```
 
-## 📦 **Installation from PyPI**
 
-```bash
-# Install the package
-pip install fino-file-sharing
-
-# Generate keys
-fino gen-key
-
-# Send a file
-fino send --file document.pdf --to npub1... --from nsec1...
-
-# Receive files
-fino receive --from nsec1...
-```
 
 ## 🤝 **Contributing**
 
