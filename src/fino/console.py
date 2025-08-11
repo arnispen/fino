@@ -22,10 +22,6 @@ custom_theme = Theme({
     "danger": "red",
     "success": "green",
     "magic": "bright_magenta",
-    "stealth": "dim white",
-    "time_lock": "bright_blue",
-    "dead_drop": "bright_red",
-    "multi_hop": "bright_yellow",
 })
 
 # Shared Rich console with custom theme
