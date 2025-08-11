@@ -17,7 +17,7 @@ app = typer.Typer(help="Receive and decrypt files via Nostr DMs and IPFS")
 @app.command()
 def receive(
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
-    output_dir: str = typer.Option("./received", "--output-dir", "-o", help="Directory to save received files"),
+    output_dir: str = typer.Option(".", "--output-dir", "-o", help="Directory to save received files (default: current directory)"),
 ):
     """
     Receive and decrypt files via Nostr DMs and IPFS storage.
@@ -41,8 +41,9 @@ def receive(
     
     console.print("=" * 60, style="cyan")
     
-    # Create output directory
-    os.makedirs(output_dir, exist_ok=True)
+    # Create output directory if it's not the current directory
+    if output_dir != ".":
+        os.makedirs(output_dir, exist_ok=True)
     
     def callback(event):
         console.print("\n" + "=" * 60, style="bright_magenta")
