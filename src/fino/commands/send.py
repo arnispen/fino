@@ -1,11 +1,17 @@
 import typer
 from pathlib import Path
 from ..encryption import encrypt_file
-from ..ipfs import upload_to_pinata
+from ..ipfs import upload_to_ipfs
 from ..nostr import encrypt_payload, send_dm, DEFAULT_RELAYS
 from ..utils import build_payload
+from ..console import (
+    console, print_header, print_step, print_file_info, print_success_message,
+    create_progress_bar, animate_loading
+)
 
 app = typer.Typer(help="Send encrypted files via Nostr DMs and IPFS storage")
+
+
 
 @app.command()
 def send(
@@ -18,42 +24,67 @@ def send(
     
     This command:
     1. Encrypts the file with AES-256-CBC
-    2. Uploads encrypted file to IPFS via Pinata
-    3. Encrypts metadata (CID, key, nonce) with recipient's public key
-    4. Sends encrypted metadata via Nostr DM
+    2. Uploads the encrypted file to IPFS
+    3. Sends the decryption metadata via Nostr DMs
+    4. Recipient can download and decrypt the file
     
     ⚠️  This is experimental software for innovation research only.
     """
-    typer.secho("🔐📁 [bold]FiNo File Sending Process[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
-    typer.secho("=" * 50, fg=typer.colors.CYAN)
+    # Beautiful header
+    print_header("FiNo File Sending Process", "Secure, Anonymous, Decentralized")
     
     # Show file info
     file_size = file.stat().st_size
-    typer.secho(f"📁 File: {file.name} ({file_size:,} bytes)", fg=typer.colors.CYAN)
-    typer.secho(f"👤 Recipient: {to[:8]}...", fg=typer.colors.CYAN)
-    typer.secho(f"📡 Relay(s): {DEFAULT_RELAYS}", fg=typer.colors.CYAN)
-    typer.secho("=" * 50, fg=typer.colors.CYAN)
+    print_file_info(file.name, file_size, [])
+    
+    console.print("=" * 60, style="cyan")
     
     # Step 1: File encryption
-    typer.secho("🔒 [bold]Step 1:[/bold] Encrypting file...", fg=typer.colors.CYAN)
-    ciphertext, key, nonce = encrypt_file(str(file))
-    typer.secho(f"   ✅ File encrypted: {len(ciphertext):,} bytes", fg=typer.colors.GREEN)
+    print_step(1, "Encrypting file with AES-256-CBC")
+    with create_progress_bar("Encrypting file...") as progress:
+        task = progress.add_task("Encrypting", total=100)
+        ciphertext, key, nonce = encrypt_file(str(file))
+        progress.update(task, completed=100)
+    
+    print_step(1, "File encryption completed", "success")
+    console.print(f"   📊 Encrypted size: {len(ciphertext):,} bytes", style="green")
     
     # Step 2: IPFS upload
-    typer.secho("🌐 [bold]Step 2:[/bold] Uploading to IPFS...", fg=typer.colors.CYAN)
-    cid = upload_to_pinata(ciphertext, file.name)
-    typer.secho(f"   ✅ Uploaded to IPFS: {cid}", fg=typer.colors.GREEN)
+    print_step(2, "Uploading to IPFS")
+    with create_progress_bar("Uploading to IPFS...") as progress:
+        task = progress.add_task("Uploading", total=100)
+        cid = upload_to_ipfs(ciphertext, file.name)
+        progress.update(task, completed=100)
     
-    # Step 3: Metadata encryption and sending
-    typer.secho("📡 [bold]Step 3:[/bold] Sending via Nostr DM...", fg=typer.colors.CYAN)
+    print_step(2, "IPFS upload completed", "success")
+    console.print(f"   🔗 IPFS CID: {cid}", style="green")
+    
+    # Step 3: Metadata preparation
+    print_step(3, "Preparing encrypted metadata")
+    
+    # Build payload
     payload = build_payload(cid, key, nonce, file.name)
-    enc = encrypt_payload(payload, to, from_nsec)
-    send_dm(from_nsec, to, enc, DEFAULT_RELAYS)
     
-    typer.secho("=" * 50, fg=typer.colors.CYAN)
-    typer.secho("🎉 [bold]File sent successfully![/bold]", fg=typer.colors.BRIGHT_GREEN)
-    typer.secho(f"📁 File: {file.name}", fg=typer.colors.GREEN)
-    typer.secho(f"📊 Size: {file_size:,} bytes", fg=typer.colors.GREEN)
-    typer.secho(f"🔗 IPFS CID: {cid}", fg=typer.colors.GREEN)
-    typer.secho(f"👤 Recipient: {to[:8]}...", fg=typer.colors.GREEN)
-    typer.secho("⚠️  [italic]This is experimental software for innovation research only.[/italic]", fg=typer.colors.YELLOW)
+    print_step(3, "Metadata preparation completed", "success")
+    
+    # Step 4: Send via Nostr
+    print_step(4, "Sending via Nostr DM")
+    with create_progress_bar("Sending encrypted metadata...") as progress:
+        task = progress.add_task("Sending", total=100)
+        enc = encrypt_payload(payload, to, from_nsec)
+        send_dm(from_nsec, to, enc, DEFAULT_RELAYS)
+        progress.update(task, completed=100)
+    
+    print_step(4, "Nostr transmission completed", "success")
+    
+    # Success message
+    success_details = {
+        "File": file.name,
+        "Size": f"{file_size:,} bytes",
+        "IPFS CID": cid,
+        "Recipient": f"{to[:8]}..."
+    }
+    
+    print_success_message("File sent successfully!", success_details)
+    
+    console.print("\n⚠️  [italic]This is experimental software for innovation research only.[/italic]", style="yellow")

@@ -1,223 +1,138 @@
-# FiNo 🔐📁
+# 🔐📁 FiNo - Secure File Sharing via IPFS + Nostr
 
-> **Proof-of-Concept: Secure File Sharing via IPFS + Nostr DMs**
+**FiNo** (File + Nostr) is a decentralized, secure file sharing tool that combines IPFS storage with Nostr messaging for truly anonymous and censorship-resistant file transfers.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Status: Proof of Concept](https://img.shields.io/badge/Status-Proof%20of%20Concept-orange.svg)](https://github.com/arnispen/fino)
+## 🌟 Features
 
-**FiNo** (File + Nostr) is an innovative proof-of-concept CLI tool that demonstrates secure, decentralized file sharing using the Nostr protocol and IPFS. This project explores the intersection of decentralized messaging and distributed file storage for private, censorship-resistant file transfers.
+- **🔐 End-to-End Encryption**: AES-256-CBC + ECDH key exchange
+- **🌐 Decentralized**: No central servers, works globally
+- **🆓 Completely Free**: No API keys, no registration required
+- **⚡ Real-Time**: Instant file sharing via Nostr DMs
+- **🔒 Privacy-Focused**: No central servers, no tracking
 
-## 🚀 **Innovation Highlights**
+## 🚀 Quick Start
 
-- **🔐 End-to-End Encryption**: Custom ECDH-based encryption for cross-key communication
-- **🌐 Decentralized Infrastructure**: Leverages Nostr relays and IPFS for distributed operation
-- **📱 CLI-First Design**: Simple, powerful command-line interface
-- **🔒 Privacy-Focused**: No central servers, no tracking, no metadata retention
-- **⚡ Real-Time**: Instant file sharing via Nostr DMs with IPFS storage
-
-## 🏗️ **Architecture Overview**
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Sender    │    │   Nostr     │    │   Receiver  │
-│             │    │   Relay     │    │             │
-│ 1. Encrypt  │───▶│ 2. DM with  │───▶│ 3. Decrypt  │
-│    File     │    │   Metadata  │    │   & Save    │
-│ 2. Upload   │    │             │    │             │
-│    to IPFS  │    │             │    │             │
-└─────────────┘    └─────────────┘    └─────────────┘
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           │
-                    ┌─────────────┐
-                    │    IPFS     │
-                    │   Storage   │
-                    │             │
-                    │ Encrypted   │
-                    │   Files     │
-                    └─────────────┘
-```
-
-## 🛠️ **Installation**
-
-### Prerequisites
-
-- Python 3.8 or higher
-- Nostr key pair (nsec/npub)
-- Pinata API key (for IPFS storage - **only needed for sending**)
-
-### Quick Start
-
-#### Option 1: Install from PyPI (Recommended)
-
+### 1. Install FiNo
 ```bash
-# Install the package (includes all dependencies)
 pip install pyfino
-
-# Generate keys
-fino gen-key
-
-# Send a file
-fino send --file document.pdf --to npub1... --from nsec1...
-
-# Receive files
-fino receive --from nsec1...
 ```
 
-#### Option 2: Install from Source
-
+### 2. Install IPFS (one-time setup)
 ```bash
-# Clone the repository
-git clone https://github.com/arnispen/fino.git
-cd fino
+# macOS
+brew install ipfs
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+# Linux
+curl -O https://dist.ipfs.io/go-ipfs/v0.36.0/go-ipfs_v0.36.0_linux-amd64.tar.gz
+tar -xvzf go-ipfs_v0.36.0_linux-amd64.tar.gz
+sudo mv go-ipfs/ipfs /usr/local/bin/
 
-# Install dependencies and CLI tool (installing requirements.txt might not be absolutely necessary, but it's good to do just in case)
-pip install -r requirements.txt
-pip install -e .
+# Windows
+# Download from https://ipfs.io/docs/install/
 ```
 
-## 🔑 **Setup**
-
-### 1. Generate Nostr Keys
-
+### 3. Initialize IPFS (one-time setup)
 ```bash
-# Generate a new key pair
-fino gen-key
-
-# This will output:
-# nsec: nsec1...
-# npub: npub1...
+ipfs init
+brew services start ipfs  # macOS
+# or: ipfs daemon &  # Linux/Windows
 ```
 
-### 2. Configure Pinata (IPFS Storage) - **Only for Sending**
-
-Configure your Pinata JWT token globally:
-
+### 4. Generate your keys
 ```bash
-# Interactive setup (recommended)
-fino config set pinata-jwt
-
-# Or set directly
-fino config set pinata-jwt --value your_jwt_token_here
-```
-
-This will guide you through getting your JWT token from Pinata and store it securely in `~/.fino/config.json`.
-
-> **Note**: Pinata JWT is only required for sending files (uploading to IPFS). Receiving files doesn't require any API keys.
-
-## 📖 **Usage**
-
-### Sending Files
-
-```bash
-# Send a file to a recipient
-fino send \
-  --file ./secret_document.pdf \
-  --to npub1recipient_public_key_here \
-  --from nsec1your_private_key_here
-```
-
-### Receiving Files
-
-```bash
-# Listen for incoming files (saves to current directory by default)
-# Only shows NEW files sent to you after starting the command
-fino receive \
-  --from nsec1your_private_key_here
-
-# Save to specific directory
-fino receive \
-  --from nsec1your_private_key_here \
-  --output-dir ./downloads
-```
-
-> Note: FiNo uses a built-in default relay configuration for simplicity and reliability.
-
-### Key Management
-
-```bash
-# Generate new key pair
 fino gen-key
 ```
 
-## 🔐 **Security Features**
-
-### Encryption Layers
-
-1. **File Encryption**: AES-256-CBC with random key and nonce
-2. **Metadata Encryption**: Custom ECDH-based encryption for cross-key communication
-3. **Nostr DMs**: Standard Nostr kind 4 encrypted direct messages
-
-### Privacy Guarantees
-
-- ✅ **No Central Servers**: Fully decentralized via Nostr relays
-- ✅ **No Metadata Tracking**: IPFS CIDs are encrypted in DMs
-- ✅ **End-to-End Encryption**: Only sender and recipient can decrypt
-- ✅ **Censorship Resistant**: Distributed across multiple relays and IPFS nodes
-- ✅ **Filename Preservation**: Original filenames are preserved when files are received
-
-## 🧪 **Proof-of-Concept Status**
-
-⚠️ **Important**: This is a **proof-of-concept** project designed for:
-
-- **Innovation Research**: Exploring decentralized file sharing concepts
-- **Educational Purposes**: Understanding Nostr + IPFS integration
-- **Developer Experimentation**: Testing new cryptographic approaches
-
-**Not intended for production use** without significant security audits and hardening.
-
-## 🏗️ **Technical Implementation**
-
-### Core Components
-
-- **`src/fino/encryption.py`**: AES file encryption/decryption
-- **`src/fino/ipfs.py`**: IPFS upload/download via Pinata
-- **`src/fino/nostr.py`**: Nostr DM handling with custom ECDH encryption
-- **`src/fino/commands/`**: CLI command implementations
-
-### Key Innovations
-
-1. **Custom ECDH Encryption**: Bypasses pynostr's broken cross-key encryption
-2. **Hybrid Architecture**: Combines Nostr's real-time messaging with IPFS's persistent storage
-3. **CLI-First Design**: Developer-friendly interface for rapid prototyping
-
-## 🧪 **Manual Testing**
-
+### 5. Send a file
 ```bash
-# Test file sharing between two users
-# Terminal 1: Start receiver
-fino receive --from nsec1receiver_key
-
-# Terminal 2: Send file
-fino send --file test.txt --to npub1receiver_key --from nsec1sender_key
+fino send document.pdf --to npub1abc... --from nsec1xyz...
 ```
 
+### 6. Receive files
+```bash
+fino receive --from nsec1xyz...
+```
+
+## 🤔 How It Works (ELI5)
+
+### **The Problem**
+- Traditional file sharing needs central servers (Google Drive, Dropbox)
+- These can be shut down, censored, or hacked
+- They know who you are and what you're sharing
+
+### **The Solution**
+FiNo splits file sharing into two parts:
+
+1. **📁 File Storage (IPFS)**
+   - Files are stored on a global network (like a giant, distributed hard drive)
+   - No single point of failure
+   - Files are accessible from anywhere in the world
+   - **Free forever** - no company owns it
+
+2. **📨 File Location (Nostr)**
+   - The "address" of your file is sent via Nostr (like a decentralized email)
+   - Only the person you send it to can find the file
+   - No central server controls the messages
+
+### **How It's Free**
+- **IPFS**: Community-run network, no company owns it
+- **Nostr**: Decentralized messaging protocol, no company owns it
+- **No API keys**: You're not using anyone's service
+- **No registration**: You're just using open protocols
 
 
-## 🤝 **Contributing**
 
-This is a proof-of-concept project. Contributions are welcome for:
+## 🌍 Global File Sharing
 
-- Bug fixes and improvements
-- Documentation enhancements
-- Security audits and recommendations
-- Feature suggestions
+### How It Works Across Countries
+1. **Sender** encrypts file → uploads to IPFS → sends metadata via Nostr
+2. **IPFS Network** stores file globally accessible
+3. **Receiver** gets metadata via Nostr → downloads from IPFS → decrypts
 
-Please read [DEVELOPMENT.md](DEVELOPMENT.md) for development setup and guidelines.
+### Why It Works Everywhere
+- **IPFS**: Files are replicated across the global network
+- **Nostr**: Messages are relayed through multiple servers worldwide
+- **No borders**: Decentralized protocols don't respect national boundaries
 
-## 📄 **License**
+## 🔐 Security Features
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **AES-256-CBC**: Military-grade file encryption
+- **ECDH**: Perfect forward secrecy for metadata
+- **Zero-knowledge**: No one can see your files except the intended recipient
+- **End-to-end encryption**: Files encrypted before transmission
+- **Decentralized**: No central point of failure
 
-## ⚠️ **Disclaimer**
+## 📦 Installation Details
 
-This software is provided as-is for educational and research purposes. The authors make no guarantees about security, reliability, or suitability for any purpose. Use at your own risk.
+### Requirements
+- Python 3.8+
+- IPFS daemon
+- Internet connection
+
+### Dependencies
+- `cryptography`: Encryption
+- `pynostr`: Nostr protocol
+- `requests`: HTTP requests
+- `rich`: Beautiful CLI
+- `typer`: Command-line interface
+
+## 🚨 Important Notes
+
+- **Experimental software** - Use at your own risk
+- **Keep your nsec private** - Never share your private key
+- **Backup your keys** - If you lose them, you can't access your files
+- **IPFS persistence** - Files may be removed if not pinned by someone
+
+## 🔗 Useful Links
+
+- [IPFS Documentation](https://docs.ipfs.io/)
+- [Nostr Protocol](https://github.com/nostr-protocol/nostr)
+- [FiNo GitHub](https://github.com/yourusername/fino)
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
 
 ---
 
-**FiNo** - Exploring the future of decentralized file sharing, one proof-of-concept at a time. 🔐📁
+**⚠️ Disclaimer**: This is experimental software for innovation research only. Use responsibly and in accordance with local laws.

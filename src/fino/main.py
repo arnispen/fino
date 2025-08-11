@@ -8,10 +8,9 @@ load_dotenv()
 from fino.commands.send import send as send_cmd
 from fino.commands.receive import receive as receive_cmd
 from fino.commands.gen_key import gen_key as gen_key_cmd
-from fino.commands.config import app as config_cmd
 
 app = typer.Typer(
-    help="🔐📁 FiNo: Proof-of-Concept Secure File Sharing via IPFS + Nostr DMs",
+    help="🔐📁 FiNo: Decentralized Secure File Sharing via IPFS + Nostr",
     add_completion=False,
     rich_markup_mode="rich"
 )
@@ -25,29 +24,44 @@ def callback(
     json_out: bool = typer.Option(False, "--json", help="Output in JSON format"),
 ):
     """
-    [bold blue]FiNo[/bold blue] - [italic]File + Nostr[/italic]
+    FiNo - File + Nostr
     
-    [yellow]Proof-of-Concept:[/yellow] Secure, decentralized file sharing using Nostr DMs and IPFS storage.
+    Decentralized, secure file sharing using IPFS storage and Nostr messaging.
+    No central servers, no API keys, completely free and censorship-resistant.
     
-    [red]⚠️  This is experimental software for innovation research only.[/red]
+    ⚠️  This is experimental software for innovation research only.
     """
     if ctx.invoked_subcommand is None:
-        typer.echo("\n[bold blue]🔐📁 Welcome to FiNo![/bold blue]")
-        typer.echo("[italic]Secure File Sharing via IPFS + Nostr DMs[/italic]")
-        typer.echo("\n[bold cyan]🚀 Quick Start:[/bold cyan]")
-        typer.echo("  1. [green]fino gen-key[/green]                    - Generate your Nostr keys")
-        typer.echo("  2. [green]fino send --file <file> --to <npub> --from <nsec>[/green]")
-        typer.echo("  3. [green]fino receive --from <nsec>[/green]       - Listen for incoming files")
-        typer.echo("\n[bold cyan]📖 Available Commands:[/bold cyan]")
-        typer.echo("  [green]fino send[/green]     - Send encrypted files via Nostr DMs")
-        typer.echo("  [green]fino receive[/green]  - Receive and decrypt files")
-        typer.echo("  [green]fino gen-key[/green]  - Generate new Nostr key pair")
-        typer.echo("  [green]fino config[/green]   - Manage global configuration")
-        typer.echo("\n[bold cyan]💡 Pro Tips:[/bold cyan]")
-        typer.echo("  • Use [yellow]--help[/yellow] with any command for detailed options")
-        typer.echo("  • Files are saved to current directory by default")
-        typer.echo("  • Only NEW files sent after starting receive are shown")
-        typer.echo("\n[red]⚠️  For innovation research only - not for production use[/red]")
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.text import Text
+        from rich.align import Align
+        
+        console = Console()
+        
+        welcome_text = Text("🔐📁 Welcome to FiNo!", style="bold blue")
+        subtitle = Text("Secure File Sharing via IPFS + Nostr DMs", style="italic")
+        
+        panel = Panel(
+            Align.center(welcome_text + "\n" + subtitle),
+            border_style="blue",
+            padding=(1, 2)
+        )
+        console.print(panel)
+        
+        console.print("\n[bold cyan]🚀 Quick Start:[/bold cyan]")
+        console.print("  1. [green]fino gen-key[/green]                    - Generate your Nostr keys")
+        console.print("  2. [green]fino send <file> --to <npub> --from <nsec>[/green]")
+        console.print("  3. [green]fino receive --from <nsec>[/green]       - Listen for incoming files")
+        console.print("\n[bold cyan]📖 Available Commands:[/bold cyan]")
+        console.print("  [green]fino send[/green]     - Send encrypted files via IPFS + Nostr")
+        console.print("  [green]fino receive[/green]  - Receive and decrypt files")
+        console.print("  [green]fino gen-key[/green]  - Generate new Nostr key pair")
+        console.print("\n[bold cyan]💡 Pro Tips:[/bold cyan]")
+        console.print("  • Use [yellow]--help[/yellow] with any command for detailed options")
+
+        console.print("  • Files work globally - no central servers needed!")
+        console.print("\n[red]⚠️  For innovation research only - not for production use[/red]")
         raise typer.Exit(0)
     import fino.utils as utils
     utils.configure_logging(verbose, quiet, no_color, json_out)
@@ -55,7 +69,6 @@ def callback(
 app.command()(gen_key_cmd)
 app.command()(send_cmd)
 app.command()(receive_cmd)
-app.add_typer(config_cmd, name="config", help="Manage global configuration")
 
 def main():
     app()

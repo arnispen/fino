@@ -1,15 +1,23 @@
 import typer
+import os
+import time
 from ..nostr import receive_loop, decrypt_payload, DEFAULT_RELAYS
 from ..ipfs import download
 from ..encryption import decrypt_file
 from ..utils import build_filename_from_payload
+from ..console import (
+    console, print_header, print_step, print_success_message, print_error_message,
+    create_progress_bar, print_file_info
+)
 
 app = typer.Typer(help="Receive and decrypt files via Nostr DMs and IPFS")
+
+
 
 @app.command()
 def receive(
     from_nsec: str = typer.Option(..., "--from", help="Your nsec (private key)"),
-    output_dir: str = typer.Option(None, "--output-dir", "-o", help="Directory to save received files (default: current directory)"),
+    output_dir: str = typer.Option("./received", "--output-dir", "-o", help="Directory to save received files"),
 ):
     """
     Receive and decrypt files via Nostr DMs and IPFS storage.
@@ -22,66 +30,118 @@ def receive(
     
     ⚠️  This is experimental software for innovation research only.
     """
-    typer.secho("🔐📁 [bold]FiNo File Receiving Process[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
-    typer.secho("=" * 50, fg=typer.colors.CYAN)
-    typer.secho("🎧 [bold]Starting receiver...[/bold]", fg=typer.colors.CYAN)
-    typer.secho("   📡 Relays: " + ", ".join(DEFAULT_RELAYS), fg=typer.colors.CYAN)
-    typer.secho("   💾 Output: " + (output_dir or "current directory"), fg=typer.colors.CYAN)
-    typer.secho("   🔍 Only showing NEW files sent to you", fg=typer.colors.CYAN)
-    typer.secho("   ⏹️  Press Ctrl+C to stop", fg=typer.colors.CYAN)
-    typer.secho("=" * 50, fg=typer.colors.CYAN)
-    typer.secho("🔄 Connecting to relay...", fg=typer.colors.YELLOW)
+    # Beautiful header
+    print_header("FiNo File Receiving Process", "Listening for encrypted files...")
+    
+    # Show receiver info
+    console.print(f"👤 [bold]Listening for messages from:[/bold] {from_nsec[:8]}...", style="cyan")
+    console.print(f"📁 [bold]Output directory:[/bold] {output_dir}", style="cyan")
+    console.print(f"📡 [bold]Relay(s):[/bold] {DEFAULT_RELAYS}", style="cyan")
+    console.print(f"🔧 [bold]Download method:[/bold] IPFS", style="cyan")
+    
+    console.print("=" * 60, style="cyan")
+    
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
     
     def callback(event):
-        typer.secho("🔄 [bold]PROCESSING RECEIVED FILE[/bold]", fg=typer.colors.BRIGHT_MAGENTA)
-        typer.secho("-" * 40, fg=typer.colors.CYAN)
+        console.print("\n" + "=" * 60, style="bright_magenta")
+        console.print("📨 [bold]NEW FILE MESSAGE RECEIVED![/bold]", style="bright_green")
+        console.print("=" * 60, style="bright_magenta")
         
         # Step 1: Decrypt metadata
-        typer.secho("🔓 [bold]Step 1:[/bold] Decrypting metadata...", fg=typer.colors.CYAN)
+        print_step(1, "Decrypting metadata")
         try:
-            p = decrypt_payload(event, from_nsec)
-            typer.secho(f"   ✅ Metadata decrypted: CID {p['cid'][:8]}...", fg=typer.colors.GREEN)
+            with create_progress_bar("Decrypting metadata...") as progress:
+                task = progress.add_task("Decrypting", total=100)
+                payload = decrypt_payload(event, from_nsec)
+                progress.update(task, completed=100)
+            
+            print_step(1, "Metadata decryption completed", "success")
+            console.print(f"   🔗 IPFS CID: {payload['cid'][:8]}...", style="green")
+            
         except Exception as e:
-            typer.secho(f"   ❌ Failed to decrypt metadata: {e}", fg=typer.colors.RED)
-            import traceback
-            typer.secho(f"   ❌ Traceback: {traceback.format_exc()}", fg=typer.colors.RED)
+            print_step(1, "Metadata decryption failed", "error")
+            print_error_message("Failed to decrypt metadata", e)
             return
-        
+            
+
+            
         # Step 2: Download from IPFS
-        typer.secho("📥 [bold]Step 2:[/bold] Downloading from IPFS...", fg=typer.colors.CYAN)
-        data = download(p["cid"])
-        typer.secho(f"   ✅ Downloaded: {len(data):,} bytes", fg=typer.colors.GREEN)
-        
+        print_step(2, "Downloading from IPFS")
+        try:
+            with create_progress_bar("Downloading from IPFS...") as progress:
+                task = progress.add_task("Downloading", total=100)
+                data = download(payload["cid"])
+                progress.update(task, completed=100)
+            
+            print_step(2, "IPFS download completed", "success")
+            console.print(f"   📊 Downloaded: {len(data):,} bytes", style="green")
+            
+        except Exception as e:
+            print_step(2, "IPFS download failed", "error")
+            print_error_message("Failed to download from IPFS", e)
+            return
+            
         # Step 3: Decrypt file
-        typer.secho("🔓 [bold]Step 3:[/bold] Decrypting file...", fg=typer.colors.CYAN)
-        plaintext = decrypt_file(data, bytes.fromhex(p["key"]), bytes.fromhex(p["nonce"]))
-        typer.secho(f"   ✅ File decrypted: {len(plaintext):,} bytes", fg=typer.colors.GREEN)
-        
+        print_step(3, "Decrypting file")
+        try:
+            with create_progress_bar("Decrypting file...") as progress:
+                task = progress.add_task("Decrypting", total=100)
+                plaintext = decrypt_file(data, bytes.fromhex(payload["key"]), bytes.fromhex(payload["nonce"]))
+                progress.update(task, completed=100)
+            
+            print_step(3, "File decryption completed", "success")
+            console.print(f"   📊 Decrypted: {len(plaintext):,} bytes", style="green")
+            
+        except Exception as e:
+            print_step(3, "File decryption failed", "error")
+            print_error_message("Failed to decrypt file", e)
+            return
+            
         # Step 4: Save file
-        import os
+        print_step(4, "Saving file")
         
-        # Determine output directory
-        if output_dir:
-            # Use specified output directory
-            os.makedirs(output_dir, exist_ok=True)
-            save_dir = output_dir
-        else:
-            # Use current working directory
-            save_dir = "."
+        filename = build_filename_from_payload(payload)
+        filepath = os.path.join(output_dir, filename)
         
-        fname = build_filename_from_payload(p)
-        filepath = os.path.join(save_dir, fname)
-        typer.secho("💾 [bold]Step 4:[/bold] Saving file...", fg=typer.colors.CYAN)
-        typer.secho(f"   📁 Path: {filepath}", fg=typer.colors.CYAN)
-        
+        # Save file
         with open(filepath, "wb") as f:
             f.write(plaintext)
         
-        typer.secho("-" * 40, fg=typer.colors.CYAN)
-        typer.secho("🎉 [bold]File received successfully![/bold]", fg=typer.colors.BRIGHT_GREEN)
-        typer.secho(f"📁 Saved: {filepath}", fg=typer.colors.GREEN)
-        typer.secho(f"📊 Size: {len(plaintext):,} bytes", fg=typer.colors.GREEN)
-        typer.secho("⚠️  [italic]This is experimental software for innovation research only.[/italic]", fg=typer.colors.YELLOW)
-        typer.secho("=" * 50, fg=typer.colors.CYAN)
+        print_step(4, "File saved successfully", "success")
+        console.print(f"   📁 Saved: {filepath}", style="green")
+        
+        # Show file info
+        file_info = {
+            "Filename": filename,
+            "Size": f"{len(plaintext):,} bytes",
+            "IPFS CID": payload["cid"][:8] + "...",
+            "Path": filepath
+        }
+        
+        print_file_info(filename, len(plaintext), [])
+        
+        # Success message
+        success_details = {
+            "File": filename,
+            "Size": f"{len(plaintext):,} bytes",
+            "Saved to": filepath
+        }
+        
+        print_success_message("File received successfully!", success_details)
+        
+        console.print("=" * 60, style="bright_magenta")
     
-    receive_loop(from_nsec, DEFAULT_RELAYS, callback)
+    # Start listening
+    console.print("🎧 [bold]Starting to listen for Nostr DMs...[/bold]", style="cyan")
+    console.print("   📡 Waiting for file transfer messages...", style="cyan")
+    console.print("   ⏹️  Press Ctrl+C to stop", style="cyan")
+    console.print("=" * 60, style="cyan")
+    
+    try:
+        receive_loop(from_nsec, DEFAULT_RELAYS, callback)
+    except KeyboardInterrupt:
+        console.print("\n👋 [bold]Stopping receiver...[/bold]", style="yellow")
+    except Exception as e:
+        print_error_message("Receiver error", e)

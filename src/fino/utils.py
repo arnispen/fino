@@ -1,8 +1,8 @@
 import os
-import typer
 import logging
 import json
 from pathlib import Path
+from .console import console
 
 def configure_logging(verbose: bool, quiet: bool, no_color: bool, json_out: bool):
     """Minimal logging setup to satisfy CLI hook and tests.""" 
@@ -49,23 +49,7 @@ def set_config_value(key: str, value: str):
     config[key] = value
     save_config(config)
 
-def resolve_jwt() -> str:
-    """Get Pinata JWT from global config or environment variable"""
-    # First try global config
-    jwt = get_config_value("pinata_jwt")
-    if jwt:
-        return jwt
-    
-    # Fallback to environment variable
-    jwt = os.getenv("PINATA_JWT_DEFAULT")
-    if jwt:
-        return jwt
-    
-    # If neither exists, guide user to set it
-    typer.secho("❌ Pinata JWT not configured", fg=typer.colors.RED)
-    typer.secho("💡 Run 'fino config set pinata-jwt' to configure it", fg=typer.colors.YELLOW)
-    typer.secho("   Or set PINATA_JWT_DEFAULT environment variable", fg=typer.colors.YELLOW)
-    raise typer.Exit(1)
+
 
 def build_payload(cid: str, key: bytes, nonce: bytes, original_filename: str = None) -> dict:
     payload = {"cid": cid, "key": key.hex(), "nonce": nonce.hex()}
