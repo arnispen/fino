@@ -4,5 +4,8 @@ pynostr[websocket-client]>=0.0.20
 typer>=0.9.0
 python-dotenv>=1.0.0
 websockets>=11.0.0 
+rich>=13.0.0
+
+# Development dependencies
 ruff>=0.6.0
 mypy>=1.0.0

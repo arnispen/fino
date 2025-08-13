@@ -80,20 +80,6 @@ FiNo splits file sharing into two parts:
 - **No API keys**: You're not using anyone's service
 - **No registration**: You're just using open protocols
 
-
-
-## 🌍 Global File Sharing
-
-### How It Works Across Countries
-1. **Sender** encrypts file → uploads to IPFS → sends metadata via Nostr
-2. **IPFS Network** stores file globally accessible
-3. **Receiver** gets metadata via Nostr → downloads from IPFS → decrypts
-
-### Why It Works Everywhere
-- **IPFS**: Files are replicated across the global network
-- **Nostr**: Messages are relayed through multiple servers worldwide
-- **No borders**: Decentralized protocols don't respect national boundaries
-
 ## 🔐 Security Features
 
 - **AES-256-CBC**: Military-grade file encryption
