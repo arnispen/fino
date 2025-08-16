@@ -53,9 +53,9 @@ def callback(
         console.print(
             "  1. [green]fino gen-key[/green]                    - Generate your Nostr keys"
         )
-        console.print("  2. [green]fino send <file> --to <npub> --from <nsec>[/green]")
+        console.print("  2. [green]fino send {file} --to {npub} --from {nsec}[/green]")
         console.print(
-            "  3. [green]fino receive --from <nsec>[/green]       - Listen for incoming files"
+            "  3. [green]fino receive --from {nsec}[/green]       - Listen for incoming files"
         )
         console.print("\n[bold cyan]📖 Available Commands:[/bold cyan]")
         console.print(

@@ -53,11 +53,11 @@ def gen_key():
     # Usage examples
     console.print("📝 [bold]Usage Examples:[/bold]", style="cyan")
     console.print(
-        "   Send file: [green]fino send document.pdf --to <npub> --from <nsec>[/green]",
+        "   Send file: [green]fino send document.pdf --to {npub} --from {nsec}[/green]",
         style="cyan",
     )
     console.print(
-        "   Receive files: [green]fino receive --from <nsec>[/green]", style="cyan"
+        "   Receive files: [green]fino receive --from {nsec}[/green]", style="cyan"
     )
 
     console.print("=" * 60, style="cyan")

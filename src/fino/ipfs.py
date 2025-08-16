@@ -1,172 +1,118 @@
-import requests  # type: ignore[import-untyped]
 import subprocess
-import tempfile
-import os
-from .console import console
+import time
+from pathlib import Path
+from rich.console import Console
+
+console = Console()
 
 
-def upload_to_ipfs(data: bytes, filename: str) -> str:
+def upload_to_ipfs(file_path: str) -> str:
     """
-    Upload file to IPFS using local daemon
-
-    Uses the local IPFS daemon for true decentralized storage.
-    Files are accessible globally via IPFS network.
+    Upload file to IPFS - simple and fast with minimal network announcement
     """
-    console.print("📤 Uploading to IPFS...", style="cyan")
+    path = Path(file_path)
 
-    # Check if IPFS daemon is running
-    if not _is_ipfs_daemon_running():
-        console.print("   🔧 Starting IPFS daemon...", style="yellow")
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+
+    try:
+        # Start IPFS daemon if not running
         _start_ipfs_daemon()
 
-    console.print("   🔗 Using local IPFS daemon", style="green")
-    return _upload_via_ipfs_daemon(data, filename)
-
-
-def download(cid: str) -> bytes:
-    """
-    Download file from IPFS
-
-    Uses local IPFS daemon first, then falls back to public gateways.
-    """
-    console.print(f"📥 Downloading from IPFS: {cid[:8]}...", style="cyan")
-
-    # Try local IPFS daemon first
-    if _is_ipfs_daemon_running():
-        try:
-            console.print("   🔗 Using local IPFS daemon", style="green")
-            return _download_via_ipfs_daemon(cid)
-        except Exception as e:
-            console.print(f"   ❌ Local IPFS failed: {str(e)[:50]}...", style="red")
-
-    # Fallback to public gateways
-    console.print("   🌐 Using public IPFS gateways", style="yellow")
-
-    gateways = [
-        "https://ipfs.io/ipfs/",
-        "https://gateway.pinata.cloud/ipfs/",
-        "https://cloudflare-ipfs.com/ipfs/",
-        "https://dweb.link/ipfs/",
-        "https://ipfs.fleek.co/ipfs/",
-    ]
-
-    for i, gateway in enumerate(gateways):
-        try:
-            url = f"{gateway}{cid}"
-            console.print(f"   🔗 Trying gateway {i + 1}/{len(gateways)}", style="cyan")
-
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-
-            console.print("   ✅ Downloaded successfully", style="green")
-            return response.content
-
-        except Exception as e:
-            console.print(
-                f"   ❌ Gateway {i + 1} failed: {str(e)[:50]}...", style="red"
-            )
-            continue
-
-    raise Exception("All download methods failed")
-
-
-def _is_ipfs_daemon_running() -> bool:
-    """Check if IPFS daemon is running"""
-    try:
+        # Upload file
         result = subprocess.run(
-            ["ipfs", "id"], capture_output=True, timeout=5, text=True
-        )
-        return result.returncode == 0
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return False
-
-
-def _start_ipfs_daemon():
-    """Start IPFS daemon in background"""
-    try:
-        # Start daemon in background
-        subprocess.Popen(
-            ["ipfs", "daemon"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-
-        # Wait a moment for daemon to start
-        import time
-
-        time.sleep(3)
-
-        console.print("   ✅ IPFS daemon started", style="green")
-    except Exception as e:
-        console.print(f"   ❌ Failed to start IPFS daemon: {e}", style="red")
-        raise
-
-
-def _upload_via_ipfs_daemon(data: bytes, filename: str) -> str:
-    """Upload using IPFS daemon"""
-    try:
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=f"_{filename}"
-        ) as temp_file:
-            temp_file.write(data)
-            temp_file_path = temp_file.name
-
-        # Upload to IPFS
-        result = subprocess.run(
-            ["ipfs", "add", "--quiet", temp_file_path],
+            ["ipfs", "add", str(path)],
             capture_output=True,
             text=True,
+            check=True,
             timeout=60,
         )
 
-        # Clean up temp file
-        os.unlink(temp_file_path)
+        # Extract CID from output
+        lines = result.stdout.strip().split("\n")
+        for line in lines:
+            if "added" in line:
+                parts = line.split()
+                if len(parts) >= 2:
+                    cid = parts[1]  # The CID is the second word
+                    console.print(f"   ✅ Uploaded to IPFS: {cid}", style="green")
 
-        if result.returncode == 0:
-            cid = result.stdout.strip()
-            console.print(f"   ✅ Uploaded to IPFS: {cid}", style="green")
-            return cid
-        else:
-            raise Exception(f"IPFS add failed: {result.stderr}")
+                    # Pin the file
+                    subprocess.run(["ipfs", "pin", "add", cid], capture_output=True)
+                    console.print("   📌 File pinned", style="green")
+
+                    # Essential: Announce to DHT so other nodes can find it
+                    console.print("   📡 Announcing to network...", style="cyan")
+                    try:
+                        subprocess.run(
+                            ["ipfs", "dht", "provide", cid],
+                            capture_output=True,
+                            timeout=30,
+                        )
+                        console.print("   ✅ File announced to network", style="green")
+                    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                        console.print(
+                            "   ⚠️  Announce failed, but file uploaded", style="yellow"
+                        )
+
+                    return cid
+
+        raise Exception("Could not extract CID from IPFS output")
 
     except Exception as e:
         console.print(f"   ❌ IPFS upload failed: {e}", style="red")
         raise
 
 
-def _download_via_ipfs_daemon(cid: str) -> bytes:
-    """Download using IPFS daemon"""
+def _start_ipfs_daemon():
+    """Start IPFS daemon if not running"""
     try:
-        # Download from IPFS
-        result = subprocess.run(["ipfs", "cat", cid], capture_output=True, timeout=60)
+        # Check if daemon is already running
+        try:
+            subprocess.run(["ipfs", "id"], capture_output=True, check=True, timeout=5)
+            return
+        except (
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            FileNotFoundError,
+        ):
+            pass
 
-        if result.returncode == 0:
-            console.print("   ✅ Downloaded from IPFS daemon", style="green")
-            # Ensure bytes are returned; subprocess stdout is bytes
-            return (
-                result.stdout
-                if isinstance(result.stdout, bytes)
-                else bytes(result.stdout)
-            )
-        else:
-            # Decode stderr safely for readable error message
-            stderr_text = (
-                result.stderr.decode("utf-8", errors="ignore")
-                if isinstance(result.stderr, (bytes, bytearray))
-                else str(result.stderr)
-            )
-            raise Exception(f"IPFS cat failed: {stderr_text}")
+        # Start daemon in background
+        subprocess.Popen(
+            ["ipfs", "daemon"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+
+        # Wait for daemon to start
+        time.sleep(3)
 
     except Exception as e:
-        console.print(f"   ❌ IPFS download failed: {e}", style="red")
+        console.print(f"   ❌ Failed to start IPFS daemon: {e}", style="red")
         raise
 
 
-def get_ipfs_info() -> dict:
-    """Get information about IPFS setup"""
-    info = {
-        "daemon_running": _is_ipfs_daemon_running(),
-        "storage_method": "ipfs_daemon"
-        if _is_ipfs_daemon_running()
-        else "public_gateways",
-    }
-    return info
+def download_from_ipfs(cid: str, output_path: str) -> bool:
+    """
+    Download file from IPFS
+    """
+    console.print(f"   🔍 Downloading {cid} from IPFS...", style="cyan")
+
+    # Try local IPFS first
+    try:
+        result = subprocess.run(
+            ["ipfs", "get", cid, "-o", output_path],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        if result.returncode == 0:
+            console.print("   ✅ Downloaded from IPFS", style="green")
+            return True
+        else:
+            console.print("   ❌ Local IPFS download failed", style="red")
+            return False
+
+    except Exception as e:
+        console.print(f"   ❌ IPFS error: {e}", style="red")
+        return False

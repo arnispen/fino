@@ -27,7 +27,9 @@ custom_theme = Theme(
 )
 
 # Shared Rich console with custom theme
-console = Console(theme=custom_theme, markup=True, emoji=True)
+console = Console(
+    theme=custom_theme, markup=True, emoji=True, force_terminal=True, color_system="256"
+)
 
 # Pretty tracebacks
 install(show_locals=False, console=console)

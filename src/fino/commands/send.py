@@ -56,8 +56,23 @@ def send(
     print_step(2, "Uploading to IPFS")
     with create_progress_bar("Uploading to IPFS...") as progress:
         task = progress.add_task("Uploading", total=100)
-        cid = upload_to_ipfs(ciphertext, file.name)
-        progress.update(task, completed=100)
+
+        # Create temporary file for upload
+        import tempfile
+        import os
+
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=f"_{file.name}"
+        ) as temp_file:
+            temp_file.write(ciphertext)
+            temp_file_path = temp_file.name
+
+        try:
+            cid = upload_to_ipfs(temp_file_path)
+            progress.update(task, completed=100)
+        finally:
+            # Clean up temp file
+            os.unlink(temp_file_path)
 
     print_step(2, "IPFS upload completed", "success")
     console.print(f"   🔗 IPFS CID: {cid}", style="green")

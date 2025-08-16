@@ -1,7 +1,7 @@
 import typer
 import os
 from ..nostr import receive_loop, decrypt_payload, DEFAULT_RELAYS
-from ..ipfs import download
+from ..ipfs import download_from_ipfs
 from ..encryption import decrypt_file
 from ..utils import build_filename_from_payload
 from ..console import (
@@ -83,8 +83,27 @@ def receive(
         try:
             with create_progress_bar("Downloading from IPFS...") as progress:
                 task = progress.add_task("Downloading", total=100)
-                data = download(payload["cid"])
-                progress.update(task, completed=100)
+
+                # Create temporary file for download
+                import tempfile
+
+                temp_file = tempfile.NamedTemporaryFile(delete=False)
+                temp_file_path = temp_file.name
+                temp_file.close()
+
+                try:
+                    success = download_from_ipfs(payload["cid"], temp_file_path)
+                    if not success:
+                        raise Exception("Download failed from all sources")
+
+                    # Read the downloaded data
+                    with open(temp_file_path, "rb") as f:
+                        data = f.read()
+
+                    progress.update(task, completed=100)
+                finally:
+                    # Clean up temp file
+                    os.unlink(temp_file_path)
 
             print_step(2, "IPFS download completed", "success")
             console.print(f"   📊 Downloaded: {len(data):,} bytes", style="green")
