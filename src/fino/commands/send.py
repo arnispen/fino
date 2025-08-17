@@ -26,7 +26,7 @@ def send(
     Send an encrypted file via Nostr DMs and IPFS storage.
 
     This command:
-    1. Encrypts the file with AES-256-CBC
+    1. Encrypts the file with AES-256-GCM
     2. Uploads the encrypted file to IPFS
     3. Sends the decryption metadata via Nostr DMs
     4. Recipient can download and decrypt the file
@@ -43,7 +43,7 @@ def send(
     console.print("=" * 60, style="cyan")
 
     # Step 1: File encryption
-    print_step(1, "Encrypting file with AES-256-CBC")
+    print_step(1, "Encrypting file with AES-256-GCM")
     with create_progress_bar("Encrypting file...") as progress:
         task = progress.add_task("Encrypting", total=100)
         ciphertext, key, nonce = encrypt_file(str(file))

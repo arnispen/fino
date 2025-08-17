@@ -4,7 +4,7 @@
 
 ## 🌟 Features
 
-- **🔐 End-to-End Encryption**: AES-256-CBC + ECDH key exchange
+- **🔐 End-to-End Encryption**: AES-256-GCM + ECDH key exchange
 - **🌐 Decentralized**: No central servers, works globally
 - **🆓 Completely Free**: No API keys, no registration required
 - **⚡ Real-Time**: Instant file sharing via Nostr DMs
@@ -34,7 +34,7 @@ sudo mv go-ipfs/ipfs /usr/local/bin/
 ### 3. Initialize IPFS (one-time setup)
 ```bash
 ipfs init
-brew services start ipfs  # macOS
+sudo brew services start ipfs  # macOS
 # or: ipfs daemon &  # Linux/Windows
 ```
 
@@ -82,7 +82,7 @@ FiNo splits file sharing into two parts:
 
 ## 🔐 Security Features
 
-- **AES-256-CBC**: Military-grade file encryption
+- **AES-256-GCM**: Military-grade file encryption
 - **ECDH**: Perfect forward secrecy for metadata
 - **Zero-knowledge**: No one can see your files except the intended recipient
 - **End-to-end encryption**: Files encrypted before transmission

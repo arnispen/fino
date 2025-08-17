@@ -1,5 +1,6 @@
 import subprocess
 import time
+import requests
 from pathlib import Path
 from rich.console import Console
 
@@ -45,7 +46,7 @@ def upload_to_ipfs(file_path: str) -> str:
                     console.print("   📡 Announcing to network...", style="cyan")
                     try:
                         subprocess.run(
-                            ["ipfs", "dht", "provide", cid],
+                            ["ipfs", "routing", "provide", cid],
                             capture_output=True,
                             timeout=30,
                         )
@@ -93,7 +94,7 @@ def _start_ipfs_daemon():
 
 def download_from_ipfs(cid: str, output_path: str) -> bool:
     """
-    Download file from IPFS
+    Download file from IPFS with fallback to HTTP gateways
     """
     console.print(f"   🔍 Downloading {cid} from IPFS...", style="cyan")
 
@@ -107,12 +108,52 @@ def download_from_ipfs(cid: str, output_path: str) -> bool:
         )
 
         if result.returncode == 0:
-            console.print("   ✅ Downloaded from IPFS", style="green")
+            console.print("   ✅ Downloaded from local IPFS", style="green")
             return True
         else:
-            console.print("   ❌ Local IPFS download failed", style="red")
-            return False
-
+            console.print("   ⚠️  Local IPFS download failed, trying HTTP gateways...", style="yellow")
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+        console.print("   ⚠️  Local IPFS not available, trying HTTP gateways...", style="yellow")
     except Exception as e:
-        console.print(f"   ❌ IPFS error: {e}", style="red")
-        return False
+        console.print(f"   ⚠️  Local IPFS error: {e}, trying HTTP gateways...", style="yellow")
+
+    # Fallback to HTTP gateways
+    gateways = [
+        f"https://ipfs.io/ipfs/{cid}",
+        f"https://gateway.pinata.cloud/ipfs/{cid}",
+        f"https://cloudflare-ipfs.com/ipfs/{cid}",
+        f"https://dweb.link/ipfs/{cid}"
+    ]
+
+    for gateway_url in gateways:
+        try:
+            console.print(f"   🌐 Trying {gateway_url.split('/')[2]}...", style="cyan")
+            
+            response = requests.get(gateway_url, stream=True, timeout=30)
+            response.raise_for_status()
+            
+            # Get file size for progress tracking
+            total_size = int(response.headers.get('content-length', 0))
+            
+            with open(output_path, 'wb') as f:
+                downloaded = 0
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        
+                        # Show progress for large files
+                        if total_size > 0:
+                            progress = (downloaded / total_size) * 100
+                            if downloaded % (1024 * 1024) == 0:  # Show every MB
+                                console.print(f"   📥 Downloaded: {downloaded // (1024*1024)}MB / {total_size // (1024*1024)}MB ({progress:.1f}%)", style="cyan")
+            
+            console.print(f"   ✅ Downloaded from {gateway_url.split('/')[2]}", style="green")
+            return True
+            
+        except Exception as e:
+            console.print(f"   ❌ {gateway_url.split('/')[2]} failed: {str(e)[:50]}...", style="red")
+            continue
+
+    console.print("   ❌ All download methods failed", style="red")
+    return False
