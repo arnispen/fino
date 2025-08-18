@@ -40,7 +40,8 @@ fino = "fino.main:app"
 [project.optional-dependencies]
 dev = [
     "ruff>=0.6.0",
-    "mypy>=1.0.0"
+    "mypy>=1.0.0",
+    "types-requests>=2.31.0"
 ]
 
 [project.urls]

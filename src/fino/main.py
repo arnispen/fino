@@ -32,12 +32,10 @@ def callback(
     ⚠️  This is experimental software for innovation research only.
     """
     if ctx.invoked_subcommand is None:
-        from rich.console import Console
+        from fino.console import console
         from rich.panel import Panel
         from rich.text import Text
         from rich.align import Align
-
-        console = Console()
 
         welcome_text = Text("🔐📁 Welcome to FiNo!", style="bold blue")
         subtitle = Text("Secure File Sharing via IPFS + Nostr DMs", style="italic")
