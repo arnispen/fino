@@ -45,9 +45,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/arnispen/fino"
-Repository = "https://github.com/arnispen/fino"
-Issues = "https://github.com/arnispen/fino/issues"
+Homepage = "https://github.com/arnispen/pyfino"
+Repository = "https://github.com/arnispen/pyfino"
+Issues = "https://github.com/arnispen/pyfino/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
