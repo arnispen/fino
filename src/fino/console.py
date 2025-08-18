@@ -87,9 +87,7 @@ def print_file_info(
     filename: str, size: int, features: Optional[List[Any]] = None
 ) -> None:
     """Print file information in a beautiful table"""
-    table = Table(
-        title="📁 File Information", show_header=True, header_style="bold magenta"
-    )
+    table = Table(title="📁 File Information", show_header=True, header_style="bold magenta")
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="white")
 
@@ -119,9 +117,7 @@ def print_success_message(
     message: str, details: Optional[Dict[str, Any]] = None
 ) -> None:
     """Print a success message with optional details"""
-    success_panel = Panel(
-        Text(f"🎉 {message}", style="bright_green bold"), border_style="green"
-    )
+    success_panel = Panel(Text(f"🎉 {message}", style="bright_green bold"), border_style="green")
     console.print(success_panel)
 
     if details:
@@ -137,9 +133,7 @@ def print_success_message(
 
 def print_error_message(message: str, error: Optional[Exception] = None) -> None:
     """Print an error message with optional exception details"""
-    error_panel = Panel(
-        Text(f"❌ {message}", style="bright_red bold"), border_style="red"
-    )
+    error_panel = Panel(Text(f"❌ {message}", style="bright_red bold"), border_style="red")
     console.print(error_panel)
 
     if error:
@@ -148,7 +142,5 @@ def print_error_message(message: str, error: Optional[Exception] = None) -> None
 
 def print_warning_message(message: str) -> None:
     """Print a warning message"""
-    warning_panel = Panel(
-        Text(f"⚠️ {message}", style="bright_yellow bold"), border_style="yellow"
-    )
+    warning_panel = Panel(Text(f"⚠️ {message}", style="bright_yellow bold"), border_style="yellow")
     console.print(warning_panel)

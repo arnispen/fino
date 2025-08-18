@@ -68,7 +68,11 @@ def send(
             temp_file_path = temp_file.name
 
         try:
-            cid = upload_to_ipfs(temp_file_path)
+            cid = upload_to_ipfs(
+                temp_file_path,
+                announce=True,
+                background_announce=True,
+            )
             progress.update(task, completed=100)
         finally:
             # Clean up temp file

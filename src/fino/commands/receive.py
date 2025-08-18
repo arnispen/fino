@@ -42,9 +42,7 @@ def receive(
     print_header("FiNo File Receiving Process", "Listening for encrypted files...")
 
     # Show receiver info
-    console.print(
-        f"👤 [bold]Listening for messages from:[/bold] {from_nsec[:8]}...", style="cyan"
-    )
+    console.print(f"👤 [bold]Listening for messages from:[/bold] {from_nsec[:8]}...", style="cyan")
     console.print(f"📁 [bold]Output directory:[/bold] {output_dir}", style="cyan")
     console.print(f"📡 [bold]Relay(s):[/bold] {DEFAULT_RELAYS}", style="cyan")
     console.print("🔧 [bold]Download method:[/bold] IPFS", style="cyan")
@@ -57,9 +55,7 @@ def receive(
 
     def callback(event):
         console.print("\n" + "=" * 60, style="bright_magenta")
-        console.print(
-            "📨 [bold]NEW FILE MESSAGE RECEIVED![/bold]", style="bright_green"
-        )
+        console.print("📨 [bold]NEW FILE MESSAGE RECEIVED![/bold]", style="bright_green")
         console.print("=" * 60, style="bright_magenta")
 
         # Step 1: Decrypt metadata

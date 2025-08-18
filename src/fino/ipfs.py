@@ -5,7 +5,7 @@ from pathlib import Path
 from .console import console
 
 
-def upload_to_ipfs(file_path: str) -> str:
+def upload_to_ipfs(file_path: str, announce: bool = True, background_announce: bool = True) -> str:
     """
     Upload file to IPFS - simple and fast with minimal network announcement
     """
@@ -18,9 +18,9 @@ def upload_to_ipfs(file_path: str) -> str:
         # Start IPFS daemon if not running
         _start_ipfs_daemon()
 
-        # Upload file
+        # Upload file (pin by default; avoid redundant extra pin step)
         result = subprocess.run(
-            ["ipfs", "add", str(path)],
+            ["ipfs", "add", "--pin=true", str(path)],
             capture_output=True,
             text=True,
             check=True,
@@ -36,23 +36,34 @@ def upload_to_ipfs(file_path: str) -> str:
                     cid = parts[1]  # The CID is the second word
                     console.print(f"   ✅ Uploaded to IPFS: {cid}", style="green")
 
-                    # Pin the file
-                    subprocess.run(["ipfs", "pin", "add", cid], capture_output=True)
-                    console.print("   📌 File pinned", style="green")
-
-                    # Essential: Announce to DHT so other nodes can find it
-                    console.print("   📡 Announcing to network...", style="cyan")
-                    try:
-                        subprocess.run(
-                            ["ipfs", "routing", "provide", cid],
-                            capture_output=True,
-                            timeout=30,
-                        )
-                        console.print("   ✅ File announced to network", style="green")
-                    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-                        console.print(
-                            "   ⚠️  Announce failed, but file uploaded", style="yellow"
-                        )
+                    # Optional: Announce to DHT so other nodes can find it
+                    if announce:
+                        if background_announce:
+                            console.print("   📡 Announcing to network (background)...", style="cyan")
+                            try:
+                                subprocess.Popen(
+                                    ["ipfs", "routing", "provide", cid],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                )
+                            except Exception:
+                                console.print(
+                                    "   ⚠️  Background announce failed to start, but file uploaded",
+                                    style="yellow",
+                                )
+                        else:
+                            console.print("   📡 Announcing to network...", style="cyan")
+                            try:
+                                subprocess.run(
+                                    ["ipfs", "routing", "provide", cid],
+                                    capture_output=True,
+                                    timeout=30,
+                                )
+                                console.print("   ✅ File announced to network", style="green")
+                            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                                console.print(
+                                    "   ⚠️  Announce failed, but file uploaded", style="yellow"
+                                )
 
                     return cid
 

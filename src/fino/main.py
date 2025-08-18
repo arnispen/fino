@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import typer
+from importlib.metadata import version, PackageNotFoundError
 from fino.commands.send import send as send_cmd
 from fino.commands.receive import receive as receive_cmd
 from fino.commands.gen_key import gen_key as gen_key_cmd
@@ -20,8 +21,14 @@ def callback(
         False, "--verbose", "-v", help="Enable verbose output"
     ),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Suppress all output"),
-    no_color: bool = typer.Option(False, "--no-color", help="Disable colored output"),
     json_out: bool = typer.Option(False, "--json", help="Output in JSON format"),
+    version_flag: bool = typer.Option(
+        False,
+        "--version",
+        help="Show version and exit",
+        is_eager=True,
+        callback=None,
+    ),
 ):
     """
     FiNo - File + Nostr
@@ -31,6 +38,14 @@ def callback(
 
     ⚠️  This is experimental software for innovation research only.
     """
+    # Handle --version early and exit
+    if version_flag:
+        try:
+            typer.echo(f"pyfino {version('pyfino')}")
+        except PackageNotFoundError:
+            typer.echo("pyfino (version unknown)")
+        raise typer.Exit(0)
+
     if ctx.invoked_subcommand is None:
         from fino.console import console
         from rich.panel import Panel
@@ -72,8 +87,8 @@ def callback(
         )
         raise typer.Exit(0)
     import fino.utils as utils
-
-    utils.configure_logging(verbose, quiet, no_color, json_out)
+    # Apply global options
+    utils.configure_logging(verbose, quiet, False, json_out)
 
 
 app.command()(gen_key_cmd)

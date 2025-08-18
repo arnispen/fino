@@ -1,6 +1,10 @@
 import typer
 from pynostr.key import PrivateKey  # type: ignore[import-untyped]
-from ..console import console, print_header, print_warning_message
+from ..console import (
+    console,
+    print_header,
+    print_warning_message,
+)
 
 app = typer.Typer(help="Generate new Nostr key pairs for file sharing")
 
@@ -20,14 +24,16 @@ def gen_key():
 
     # Generate new key pair
     console.print(
-        "🔑 [bold]Generating cryptographically secure key pair...[/bold]", style="cyan"
+        "🔑 [bold]Generating cryptographically secure key pair...[/bold]",
+        style="cyan",
     )
 
     private_key = PrivateKey()
 
     # Display results
     console.print(
-        "\n✅ [bold]Key pair generated successfully![/bold]", style="bright_green"
+        "\n✅ [bold]Key pair generated successfully![/bold]",
+        style="bright_green",
     )
     console.print("=" * 60, style="cyan")
 
