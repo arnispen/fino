@@ -87,6 +87,7 @@ def callback(
         )
         raise typer.Exit(0)
     import fino.utils as utils
+
     # Apply global options
     utils.configure_logging(verbose, quiet, False, json_out)
 

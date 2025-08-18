@@ -5,7 +5,9 @@ from pathlib import Path
 from .console import console
 
 
-def upload_to_ipfs(file_path: str, announce: bool = True, background_announce: bool = True) -> str:
+def upload_to_ipfs(
+    file_path: str, announce: bool = True, background_announce: bool = True
+) -> str:
     """
     Upload file to IPFS - simple and fast with minimal network announcement
     """
@@ -39,7 +41,10 @@ def upload_to_ipfs(file_path: str, announce: bool = True, background_announce: b
                     # Optional: Announce to DHT so other nodes can find it
                     if announce:
                         if background_announce:
-                            console.print("   📡 Announcing to network (background)...", style="cyan")
+                            console.print(
+                                "   📡 Announcing to network (background)...",
+                                style="cyan",
+                            )
                             try:
                                 subprocess.Popen(
                                     ["ipfs", "routing", "provide", cid],
@@ -52,17 +57,25 @@ def upload_to_ipfs(file_path: str, announce: bool = True, background_announce: b
                                     style="yellow",
                                 )
                         else:
-                            console.print("   📡 Announcing to network...", style="cyan")
+                            console.print(
+                                "   📡 Announcing to network...", style="cyan"
+                            )
                             try:
                                 subprocess.run(
                                     ["ipfs", "routing", "provide", cid],
                                     capture_output=True,
                                     timeout=30,
                                 )
-                                console.print("   ✅ File announced to network", style="green")
-                            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
                                 console.print(
-                                    "   ⚠️  Announce failed, but file uploaded", style="yellow"
+                                    "   ✅ File announced to network", style="green"
+                                )
+                            except (
+                                subprocess.CalledProcessError,
+                                subprocess.TimeoutExpired,
+                            ):
+                                console.print(
+                                    "   ⚠️  Announce failed, but file uploaded",
+                                    style="yellow",
                                 )
 
                     return cid

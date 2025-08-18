@@ -9,6 +9,8 @@
 - **🆓 Completely Free**: No API keys, no registration required
 - **⚡ Real-Time**: Instant file sharing via Nostr DMs
 - **🔒 Privacy-Focused**: No central servers, no tracking
+- **🗜️ Smarter Transfers**: Files are compressed (gzip) before encryption by default
+- **🎨 Beautiful CLI**: Rich-powered output with panels, colors and emojis
 
 ## 🚀 Quick Start
 
@@ -53,6 +55,11 @@ fino send document.pdf --to npub1abc... --from nsec1xyz...
 fino receive --from nsec1xyz...
 ```
 
+### 7. Show version
+```bash
+fino --version
+```
+
 ## 🤔 How It Works (ELI5)
 
 ### **The Problem**
@@ -74,6 +81,10 @@ FiNo splits file sharing into two parts:
    - Only the person you send it to can find the file
    - No central server controls the messages
 
+### **Behavior & Defaults**
+- Files are automatically compressed with gzip before encryption to reduce transfer size (media like .mp4/.jpg may not shrink).
+- IPFS announce (provider routing) is performed in the background to minimize blocking; global discoverability may take a few seconds after send.
+
 ### **How It's Free**
 - **IPFS**: Community-run network, no company owns it
 - **Nostr**: Decentralized messaging protocol, no company owns it
@@ -86,6 +97,7 @@ FiNo splits file sharing into two parts:
 - **ECDH**: Perfect forward secrecy for metadata
 - **Zero-knowledge**: No one can see your files except the intended recipient
 - **End-to-end encryption**: Files encrypted before transmission
+- **Compress-before-encrypt**: Reduces plaintext patterns and metadata hints before encryption, and shrinks size for faster, cheaper transfers
 - **Decentralized**: No central point of failure
 
 ## 📦 Installation Details
@@ -95,13 +107,6 @@ FiNo splits file sharing into two parts:
 - IPFS daemon
 - Internet connection
 
-### Dependencies
-- `cryptography`: Encryption
-- `pynostr`: Nostr protocol
-- `requests`: HTTP requests
-- `rich`: Beautiful CLI
-- `typer`: Command-line interface
-
 ## 🚨 Important Notes
 
 - **Experimental software** - Use at your own risk
@@ -109,11 +114,17 @@ FiNo splits file sharing into two parts:
 - **Backup your keys** - If you lose them, you can't access your files
 - **IPFS persistence** - Files may be removed if not pinned by someone
 
+## ⚡ Performance Tips
+
+- Start the IPFS daemon before sending to keep it "warm": `ipfs daemon`
+- Your sender upload speed is the main bottleneck for total time; compression helps most for text/JSON/CSV, not for videos/images/ZIPs.
+- Receivers may need a few seconds after you send for background DHT announce to propagate; if a fetch fails immediately, retry once.
+
 ## 🔗 Useful Links
 
 - [IPFS Documentation](https://docs.ipfs.io/)
 - [Nostr Protocol](https://github.com/nostr-protocol/nostr)
-- [FiNo GitHub](https://github.com/yourusername/fino)
+- [FiNo GitHub](https://github.com/arnispen/pyfino)
 
 ## 📄 License
 
