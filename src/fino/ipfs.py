@@ -170,19 +170,25 @@ def download_from_ipfs(cid: str, output_path: str) -> bool:
 
             with open(output_path, "wb") as f:
                 downloaded = 0
-                for chunk in response.iter_content(chunk_size=8192):
+                last_reported = 0
+                last_report_time = time.time()
+                for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1 MiB chunks
                     if chunk:
                         f.write(chunk)
                         downloaded += len(chunk)
 
-                        # Show progress for large files
+                        # Throttled progress for large files
                         if total_size > 0:
-                            progress = (downloaded / total_size) * 100
-                            if downloaded % (1024 * 1024) == 0:  # Show every MB
+                            now = time.time()
+                            bytes_since = downloaded - last_reported
+                            if bytes_since >= 50 * 1024 * 1024 or (now - last_report_time) >= 2.0:
+                                progress = (downloaded / total_size) * 100
                                 console.print(
                                     f"   📥 Downloaded: {downloaded // (1024 * 1024)}MB / {total_size // (1024 * 1024)}MB ({progress:.1f}%)",
                                     style="cyan",
                                 )
+                                last_reported = downloaded
+                                last_report_time = now
 
             console.print(
                 f"   ✅ Downloaded from {gateway_url.split('/')[2]}", style="green"
